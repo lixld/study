@@ -1,0 +1,78 @@
+
+一种具体的编码技巧.依赖注入的英文翻译是 Dependency Injection，缩写为 DI
+用一句话来概括就是：
+不通过 new() 的方式在类内部创建依赖类对象，而是将依赖的类对象在外部创建好之后，通过构造函数、函数参数等方式传递（或注入）给类使用。
+
+实际上，DI 容器底层最基本的设计思路就是基于工厂模式的
+DI 容器相当于一个大的工厂类，负责在程序启动的时候，根据配置（要创建哪些类对象，每个类对象的创建需要依赖哪些其他类对象）事先创建好对象。
+当应用程序需要使用某个类对象的时候，直接从容器中获取即可。正是因为它持有一堆对象，所以这个框架才被称为“容器”。
+
+
+DI 容器相对于我们上节课讲的工厂模式的例子来说，它处理的是更大的对象创建工程。
+上节课讲的工厂模式中，一个工厂类只负责某个类对象或者某一组相关类对象（继承自同一抽象类或者接口的子类）的创建，
+而 DI 容器负责的是整个应用中所有类对象的创建。
+
+
+除此之外，DI 容器负责的事情要比单纯的工厂模式要多。
+比如，它还包括配置的解析、对象生命周期的管理。接下来，我们就详细讲讲，一个简单的 DI 容器应该包含哪些核心功能。
+
+DI 容器的核心功能一般有三个：
+    1.配置解析
+    2.对象创建
+    3.对象生命周期管理。
+
+
+
+public class RateLimiter {
+  private RedisCounter redisCounter;
+  public RateLimiter(RedisCounter redisCounter) {
+    this.redisCounter = redisCounter;
+  }
+  public void test() {
+    System.out.println("Hello World!");
+  }
+  //...
+}
+
+public class RedisCounter {
+  private String ipAddress;
+  private int port;
+  public RedisCounter(String ipAddress, int port) {
+    this.ipAddress = ipAddress;
+    this.port = port;
+  }
+  //...
+}
+
+配置文件beans.xml：
+<beans>
+   <bean id="rateLimiter" class="com.xzg.RateLimiter">
+      <constructor-arg ref="redisCounter"/>
+   </bean>
+
+   <bean id="redisCounter" class="com.xzg.redisCounter">
+     <constructor-arg type="String" value="127.0.0.1">
+     <constructor-arg type="int" value=1234>
+   </bean>
+</beans>
+
+对象创建：
+“反射”这种机制，它能在程序运行的过程中，动态地加载类、创建对象，不需要事先在代码中写死要创建哪些对象。所以，不管是创建一个对象还是十个对象，BeansFactory 工厂类代码都是一样的。
+
+生命周期;
+简单工厂模式有两种实现方式，
+1.每次都返回新创建的对象，
+2.每次都返回同一个事先创建好的对象，也就是所谓的单例对象
+Scope:
+    spring框架中，我们可以通过配置scope属性：来区分这两种对象。scope=prototype--表示返回新创建的对象 scope=singleton标识返回单例
+    还可以配置对象是否支持懒加载。
+lazy:
+    如果lazy-init=true.对象在正在使用的时候（比如：BeansFactory.getBean(“userService”)）才被被创建
+    如果lazy-init=false，对象在应用启动的时候就事先创建好。
+init-method=loadProperties():DI容器在创建好对象之后，主动调用init-method指定的方法来初始化对象。
+
+destory-method:updateConfigFile()：DI容器在对象销毁之前，主动调用desotry-method指定的方法来做一些清理工作。如释放数据库连接池。关闭文件。
+
+
+
+解决循环依赖，spring的做法如下，创建一个obejctFactory，提供懒加载的bean提前暴露，初始化工作，交给后面的beanPostProcessor去搞定。

@@ -1,0 +1,8 @@
+这里的client代码其实是
+用java代码 使用websocket协议来 建立和服务器的通讯
+
+其实实现有很多种，比如安卓，ios ，或者h5页面都可以实现与websocket的实现
+
+下面的websocket.html其实就是h5的一种实现
+
+

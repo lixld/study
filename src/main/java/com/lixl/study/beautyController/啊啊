@@ -1,0 +1,15 @@
+#规范
+##注意点
+###注解 RestController  @RestMapping("xxx/xxx")
+### 统一返回格式
+封装ResultVO[状态码code,msg,data{}]
+### 统一校验 
+引入jar包 spring-boot-starter-validation  
+注解@Validated
+
+可以自定义注解
+写一个controller增强类
+
+类上加注解@RestControllerAdvice(basepackage="要扫描的包")
+
+

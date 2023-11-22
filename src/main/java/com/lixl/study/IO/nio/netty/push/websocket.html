@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>websocket测试</title>
+
+  <script type="text/javascript">
+    var websocket;
+
+
+    if ("WebSocket" in window) {
+      alert("您的浏览器支持 WebSocket!");
+
+      var random = Math.floor(Math.random()*(1000 - 10 + 1) + 10);
+
+      // 打开一个 web socket
+      websocket = new WebSocket("ws://127.0.0.1:9001/websocket?userId=" + random);
+
+      //当打开和服务器建立连接时
+      websocket.onopen = function () {
+        // Web Socket 已连接上，使用 send() 方法发送数据
+        websocket.send("发送数据");
+        alert("数据发送中...");
+        var ta = document.getElementById("responseText");
+        ta.value = "websocket opened!";
+      };
+
+
+      //当收到服务器消息时
+      websocket.onmessage = function (evt) {
+        var received_msg = evt.data;
+        // alert("数据已接收...");
+        var ta = document.getElementById("responseText");
+        ta.value = ta.value + "\n" + received_msg;
+      };
+
+      //当服务器连接关闭时
+      websocket.onclose = function () {
+        // 关闭 websocket
+        alert("连接已关闭...");
+        var ta = document.getElementById("responseText");
+        ta.value = ta.value + "websocket closed";
+      };
+    } else {
+      // 浏览器不支持 WebSocket
+      alert("您的浏览器不支持 WebSocket!");
+    }
+
+
+    function send(message) {
+      if (!window.WebSocket) {
+        return;
+      }
+      if (websocket.readyState == WebSocket.OPEN) {
+        websocket.send(message);
+      } else {
+        alert("This socket is not open");
+      }
+    }
+  </script>
+
+</head>
+<body>
+
+<form onsubmit="return false">
+  <input type="text" name="message" value="hello,word!"/>
+  <input type="button" value="send web socket data" onclick="send(this.form.message)"/>
+  <h3>Output</h3>
+  <textarea id="responseText" style="width:500px;height:300px"></textarea>
+</form>
+
+</body>
+</html>
